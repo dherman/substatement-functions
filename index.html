@@ -115,7 +115,7 @@ function test() {
 }
 
 var results = test();
-var code = results[0][0] + results[1][0] + results[2][0] + results[3][0];
+var code = results[0].charAt(0) + results[1].charAt(0) + results[2].charAt(0) + results[3].charAt(0);
 var diagnoses = {
   oiio: "static, block-local",
   ooio: "dynamic, block-local",
