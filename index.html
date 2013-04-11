@@ -1,0 +1,131 @@
+<html>
+<head>
+<title>Substatement Function Declarations</title>
+</head>
+<body>
+<h4 style="color: green;">What is a substatement function declaration?</h4>
+
+<p>
+JavaScript supports nested function declarations:
+</p>
+
+<pre>function outer() {
+  function inner() { /* ... */ }
+  // ...
+}</pre>
+
+<p>
+But according to the standard, nested function declarations are only
+allowed to appear at the outermost level of their parent function (or
+script). If you nest a function declaration inside of another
+statement, you've waded into non-standard territory:
+</p>
+
+<pre>{
+  // ...
+  function f() { /* ... */ } // this is non-standard JavaScript!
+  // ...
+}</pre>
+
+<p>
+The function <tt>f</tt> is a <i>substatement function declaration</i>:
+it is a function declaration that appears inside a substatement of its
+parent function, rather than at its parent function's top level. Not
+only is this non-standard, but <i>different JavaScript engines exhibit
+different behavior</i> for this kind of code.
+</p>
+
+<h4 style="color: blue;">What does this browser do?</h4>
+
+<p>
+This browser exhibits <b><span id="answer"></span></b>
+scoping semantics for function declarations that are nested
+within substatements of their parent function or script.
+</p>
+
+<h4 style="color: orange;">What does all this mean?</h4>
+
+<dl>
+<dt><b>static scoping</b></dt>
+<dd>
+the function is in its scope regardless of whether its declaration is
+executed.
+</dd>
+<dt><b>dynamic scoping</b></dt>
+<dd>
+the function is added into its scope during execution, and only after
+its declaration is executed.
+</dd>
+
+<dt><b>function-local scoping</b></dt>
+<dd>
+the function's scope extends across its entire containing function (it
+is "hoisted" to its parent function's top level).
+</dd>
+
+<dt><b>block-local scoping</b></dt>
+<dd>
+the function's scope extends across its containing block.
+</dd>
+</dl>
+
+<h4 style="color: purple;">Why should I care?</h4>
+
+<p>
+First of all, you should really care about your code behaving the same
+across different browsers!  Second of all, dynamic scope is widely
+understood to be a bad thing. It has bad performance, and is harder to
+use correctly without accidentally introducing strange and subtle
+bugs.  Firefox is the only browser that uses dynamic scoping for
+substatement function declarations, but Mozilla is considering trying
+to change this.
+</p>
+
+<p>
+In the
+future, <a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Functions_and_function_scope/Strict_mode">strict
+mode</a> JavaScript will provide block-local scoping for substatement
+function declarations. So you should beware of depending on the
+hoisting of function scope, since migrating code to strict mode could
+change its behavior.
+</p>
+
+<p>
+
+</p>
+
+<script>
+(function() {
+
+function test() {
+  function f() { return "outer"; }
+  return (function() {
+    var a, b, c, d;
+
+    a = f();
+    {
+      b = f();
+      function f() { return "inner"; }
+      c = f();
+    }
+    d = f();
+
+    return [a, b, c, d];
+  })();
+}
+
+var results = test();
+var code = results[0][0] + results[1][0] + results[2][0] + results[3][0];
+var diagnoses = {
+  oiio: "static, block-local",
+  ooio: "dynamic, block-local",
+  iiii: "static, function-local",
+  ooii: "dynamic, function-local"
+};
+
+document.getElementById("answer").innerHTML = diagnoses[code];
+
+})();
+</script>
+</body>
+</html>
